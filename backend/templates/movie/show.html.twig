@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ movie.title }} · CinéHub{% endblock %}
+{% block body %}
+<section class="movie-detail">
+  <div class="detail-header">
+    <div class="poster-lg">
+      {% if movie.posterUrl %}
+        <img src="{{ movie.posterUrl }}" alt="Poster de {{ movie.title }}">
+      {% endif %}
+    </div>
+    <div>
+      <h1>{{ movie.title }}</h1>
+      {% if movie.actors|length > 0 %}
+        <p><strong>Acteurs</strong>:
+          {{ movie.actors|map(a => a.name)|join(', ') }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if movie.videoUrl %}
+    <div class="video-wrapper">
+      <iframe width="100%" height="480" src="{{ movie.videoUrl }}" title="Bande-annonce de {{ movie.title }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+  {% endif %}
+
+  {% if movie.synopsis %}
+    <article class="synopsis">
+      <h2>Synopsis</h2>
+      <p>{{ movie.synopsis }}</p>
+    </article>
+  {% endif %}
+</section>
+{% endblock %}

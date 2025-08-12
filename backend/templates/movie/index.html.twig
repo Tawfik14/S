@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+{% block title %}Accueil · CinéHub{% endblock %}
+{% block body %}
+<section>
+  <h1>Films</h1>
+  <div class="grid">
+    {% for movie in movies %}
+      <a class="card" href="{{ path('movie_show', {id: movie.id}) }}">
+        <div class="poster">
+          {% if movie.posterUrl %}
+            <img src="{{ movie.posterUrl }}" alt="Poster de {{ movie.title }}">
+          {% else %}
+            <div class="placeholder">Aucun poster</div>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <h2>{{ movie.title }}</h2>
+        </div>
+      </a>
+    {% else %}
+      <p class="muted">Aucun film pour l'instant.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

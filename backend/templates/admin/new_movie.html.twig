@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+{% block title %}Ajouter un film · CinéHub{% endblock %}
+{% block body %}
+<section class="admin">
+  <h1>Ajouter un film</h1>
+  {% if error %}
+    <div class="alert">{{ error }}</div>
+  {% endif %}
+  <form method="post" action="{{ path('admin_movie_new') }}" class="form">
+    <label>
+      Titre
+      <input name="title" required />
+    </label>
+    <label>
+      Acteurs (séparés par des virgules)
+      <input name="actors" />
+    </label>
+    <label>
+      Synopsis
+      <textarea name="synopsis" rows="4"></textarea>
+    </label>
+    <label>
+      Lien vidéo (YouTube embed ou MP4 direct)
+      <input name="video_url" />
+    </label>
+    <label>
+      URL du poster (ou upload à ajouter plus tard)
+      <input name="poster_url" placeholder="https://..." />
+    </label>
+    <button type="submit">Ajouter</button>
+  </form>
+</section>
+{% endblock %}

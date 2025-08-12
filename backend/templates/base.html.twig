@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CinéHub{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+</head>
+<body>
+<header class="site-header">
+    <a href="{{ path('homepage') }}" class="brand">CinéHub</a>
+    <div class="menu">
+        <button id="menu-toggle" aria-label="Menu" class="hamburger" aria-expanded="false" aria-controls="menu-panel">
+            <span></span><span></span><span></span>
+        </button>
+        <nav id="menu-panel" class="menu-panel" hidden>
+            <ul>
+                <li><a href="{{ path('homepage') }}">Accueil</a></li>
+                {% if app.user %}
+                    {% if 'ROLE_ADMIN' in app.user.roles %}
+                        <li><a href="{{ path('admin_movie_new') }}">Ajouter un film</a></li>
+                    {% endif %}
+                    <li>
+                        <form method="post" action="{{ path('app_logout') }}">
+                            <button type="submit" class="linklike">Se déconnecter ({{ app.user.userIdentifier }})</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{{ path('app_login') }}">Connexion</a></li>
+                    <li><a href="{{ path('app_signup') }}">Inscription</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</header>
+<main class="content">
+    {% block body %}{% endblock %}
+</main>
+<footer class="site-footer">
+    <p>© {{ "now"|date('Y') }} CinéHub</p>
+</footer>
+<script>
+(function(){
+  const t=document.getElementById('menu-toggle');
+  const p=document.getElementById('menu-panel');
+  if(!t||!p)return;function h(){p.hidden=true;t.setAttribute('aria-expanded','false')}function s(){p.hidden=false;t.setAttribute('aria-expanded','true')}t.addEventListener('click',()=>{p.hidden?s():h()});document.addEventListener('click',e=>{if(!p.hidden&&!p.contains(e.target)&&!t.contains(e.target))h()});})();
+</script>
+</body>
+</html>

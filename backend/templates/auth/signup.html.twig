@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block title %}Inscription · CinéHub{% endblock %}
+{% block body %}
+<section class="auth">
+  <h1>Inscription</h1>
+  <form method="post" action="{{ path('app_signup') }}" class="form">
+    <label>
+      Nom d'utilisateur
+      <input name="username" required />
+    </label>
+    <label>
+      Mot de passe
+      <input name="password" type="password" required />
+    </label>
+    <button type="submit">Créer le compte</button>
+  </form>
+</section>
+{% endblock %}
