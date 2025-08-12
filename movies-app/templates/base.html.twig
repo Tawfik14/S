@@ -26,18 +26,43 @@
     </head>
     <body class="min-h-full bg-surface-900 text-neutral-100 antialiased">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <header class="flex items-center justify-between mb-8">
-                <a href="{{ path('app_movies_index') }}" class="inline-flex items-center gap-2 text-xl font-extrabold tracking-tight">
-                    <span class="text-rose-500">🎬</span>
+            <header class="flex items-center justify-between mb-8 relative">
+                <a href="{{ path('app_movies_index') }}" class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight">
+                    <img src="{{ asset('Logo/logo.png') }}" alt="Logo" class="h-9 w-auto rounded-md ring-1 ring-white/10 bg-white/5">
                     <span>MovieNight</span>
                 </a>
-                <nav class="text-sm text-neutral-400">Catalogue de films</nav>
+
+                <div class="relative">
+                    <button id="menuBtn" class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-neutral-800 ring-1 ring-white/10 hover:bg-neutral-700" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menuPanel">
+                        <svg class="h-5 w-5 text-neutral-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                            <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                    </button>
+
+                    <div id="menuPanel" class="hidden absolute right-0 mt-2 w-48 overflow-hidden rounded-xl bg-neutral-900 ring-1 ring-white/10 shadow-xl">
+                        <a href="{{ path('app_contact') }}" class="block px-4 py-2 text-sm text-neutral-200 hover:bg-neutral-800">Contact</a>
+                        <a href="{{ path('app_about') }}" class="block px-4 py-2 text-sm text-neutral-200 hover:bg-neutral-800">À propos</a>
+                        <a href="{{ path('app_login') }}" class="block px-4 py-2 text-sm text-neutral-200 hover:bg-neutral-800">Connexion</a>
+                    </div>
+                </div>
             </header>
 
             {% block body %}{% endblock %}
 
             <footer class="mt-16 text-sm text-neutral-500">Fait avec Symfony • Thème sombre moderne</footer>
         </div>
-        {% block javascripts %}{% endblock %}
+        {% block javascripts %}
+            <script>
+                (function(){
+                    const btn = document.getElementById('menuBtn');
+                    const panel = document.getElementById('menuPanel');
+                    if (!btn || !panel) return;
+                    function closeOnOutside(e){ if(!panel.contains(e.target) && !btn.contains(e.target)){ panel.classList.add('hidden'); document.removeEventListener('click', closeOnOutside); btn.setAttribute('aria-expanded','false'); } }
+                    btn.addEventListener('click', function(e){ e.stopPropagation(); const isHidden = panel.classList.contains('hidden'); panel.classList.toggle('hidden'); btn.setAttribute('aria-expanded', String(isHidden)); if(isHidden){ setTimeout(()=>document.addEventListener('click', closeOnOutside),0); } });
+                })();
+            </script>
+        {% endblock %}
     </body>
 </html>
