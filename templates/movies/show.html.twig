@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ movie.title }} — MovieNight{% endblock %}
+
+{% block body %}
+  <section class="relative overflow-hidden rounded-2xl ring-1 ring-white/10">
+    <img src="{{ movie.backdrop }}" alt="{{ movie.title }}" class="h-64 w-full object-cover md:h-80">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 right-0 p-6">
+      <div class="flex flex-wrap items-center gap-3 text-sm text-neutral-300 mb-1">
+        <span class="px-2 py-0.5 rounded-full bg-white/10 ring-1 ring-white/10">{{ movie.year }}</span>
+        <span class="px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 ring-1 ring-amber-400/30">★ {{ movie.rating }}</span>
+        <span class="text-neutral-400">{{ movie.genres|join(' • ') }}</span>
+        <span class="text-neutral-400">• {{ movie.runtime }} min</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-extrabold">{{ movie.title }}</h1>
+      {% if movie.tagline %}
+        <p class="mt-1 text-neutral-300 italic">“{{ movie.tagline }}”</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <div class="mt-8 grid gap-8 md:grid-cols-3">
+    <div class="md:col-span-2 space-y-8">
+      <div>
+        <h2 class="text-xl font-semibold mb-3">Bande‑annonce</h2>
+        <div class="aspect-video rounded-xl border border-white/10 bg-neutral-900 flex items-center justify-center text-neutral-400">
+          Trailer bientôt disponible
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-semibold mb-3">Synopsis</h2>
+        <p class="leading-relaxed text-neutral-300">{{ movie.synopsis }}</p>
+      </div>
+    </div>
+
+    <aside class="space-y-4">
+      <h3 class="text-sm uppercase tracking-wide text-neutral-400">Infos</h3>
+      <ul class="space-y-2 text-sm text-neutral-300">
+        <li><span class="text-neutral-400">Sortie :</span> {{ movie.year }}</li>
+        <li><span class="text-neutral-400">Durée :</span> {{ movie.runtime }} min</li>
+        <li><span class="text-neutral-400">Genres :</span> {{ movie.genres|join(', ') }}</li>
+        <li><span class="text-neutral-400">Note :</span> ★ {{ movie.rating }}</li>
+      </ul>
+
+      <a href="{{ path('app_movies_index') }}" class="inline-flex items-center gap-2 text-sm text-rose-400 hover:text-rose-300">
+        ← Retour aux films
+      </a>
+    </aside>
+  </div>
+{% endblock %}

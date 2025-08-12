@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+{% block title %}Tableau de bord — MovieNight{% endblock %}
+
+{% block body %}
+  <section class="max-w-5xl mx-auto space-y-8">
+    <div class="rounded-2xl bg-neutral-900 ring-1 ring-white/10 p-6 sm:p-8">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold">
+            Bienvenue{% if app.user and app.user.firstName %}, {{ app.user.firstName }}{% endif %}
+          </h1>
+          <p class="mt-1 text-neutral-400 text-sm">Gérez votre espace MovieNight.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="{{ path('app_logout') }}" class="inline-flex items-center rounded-lg bg-neutral-800 hover:bg-neutral-700 px-4 py-2 font-medium ring-1 ring-white/10">Se déconnecter</a>
+        </div>
+      </div>
+    </div>
+
+    {% if is_granted('ROLE_ADMIN') %}
+      <div class="rounded-2xl bg-neutral-900 ring-1 ring-white/10 p-6 sm:p-8">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold">Mode Administrateur</h2>
+          <span class="text-xs px-2 py-1 rounded bg-rose-600/20 text-rose-300 ring-1 ring-rose-400/30">ROLE_ADMIN</span>
+        </div>
+        <p class="mt-2 text-neutral-300">Vous avez accès aux fonctions d’administration.</p>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <a class="rounded-lg bg-neutral-800 hover:bg-neutral-700 p-4 ring-1 ring-white/10">Gestion des films</a>
+          <a class="rounded-lg bg-neutral-800 hover:bg-neutral-700 p-4 ring-1 ring-white/10">Gestion des séries</a>
+          <a class="rounded-lg bg-neutral-800 hover:bg-neutral-700 p-4 ring-1 ring-white/10">Gestion des utilisateurs</a>
+        </div>
+      </div>
+    {% else %}
+      <div class="rounded-2xl bg-neutral-900 ring-1 ring-white/10 p-6 sm:p-8">
+        <h2 class="text-xl font-semibold">Mode Utilisateur</h2>
+        <p class="mt-2 text-neutral-300">Retrouvez vos activités et préférences.</p>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <a class="rounded-lg bg-neutral-800 hover:bg-neutral-700 p-4 ring-1 ring-white/10">Mes favoris</a>
+          <a class="rounded-lg bg-neutral-800 hover:bg-neutral-700 p-4 ring-1 ring-white/10">Historique</a>
+          <a class="rounded-lg bg-neutral-800 hover:bg-neutral-700 p-4 ring-1 ring-white/10">Préférences</a>
+        </div>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}
