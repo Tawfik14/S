@@ -25,4 +25,16 @@ final class PageController extends AbstractController
     {
         return $this->render('pages/login.html.twig');
     }
+
+    #[Route('/series', name: 'app_series')]
+    public function series(): Response
+    {
+        return $this->render('pages/series.html.twig');
+    }
+
+    #[Route('/quiz', name: 'app_quiz')]
+    public function quiz(): Response
+    {
+        return $this->render('pages/quiz.html.twig');
+    }
 }
