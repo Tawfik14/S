@@ -16,37 +16,60 @@
                 theme: {
                     extend: {
                         fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] },
-                        colors: {
-                            surface: { 900: '#0b0b0d', 800: '#121216' }
-                        }
+                        colors: { surface: { 900: '#0b0b0d', 800: '#121216' } }
                     }
                 }
             }
         </script>
     </head>
     <body class="min-h-full bg-surface-900 text-neutral-100 antialiased">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <header class="flex items-center justify-between mb-8 relative">
+        {# Drawer overlay and panel #}
+        <div id="drawerBackdrop" class="hidden fixed inset-0 bg-black/60 z-40"></div>
+        <aside id="drawerPanel" class="fixed top-0 left-0 z-50 h-full w-80 max-w-[84%] bg-neutral-900 ring-1 ring-white/10 -translate-x-full transition-transform duration-300 ease-out">
+            <div class="p-4 flex items-center justify-between border-b border-white/10">
+                <div class="inline-flex items-center gap-3">
+                    <img src="{{ asset('Logo/logo.png') }}" alt="Logo" class="h-8 w-auto rounded bg-white/5 ring-1 ring-white/10">
+                    <span class="text-lg font-semibold">MovieNight</span>
+                </div>
+                <button id="drawerClose" class="inline-flex items-center justify-center w-9 h-9 rounded-lg hover:bg-neutral-800" aria-label="Fermer le menu">
+                    <svg class="h-5 w-5 text-neutral-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="p-3">
+                <a href="{{ path('app_movies_index') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Accueil</a>
+                <a href="{{ path('app_contact') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Contact</a>
+                <a href="{{ path('app_about') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">À propos</a>
+                <a href="{{ path('app_login') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Connexion</a>
+            </nav>
+        </aside>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <header class="flex items-center gap-4 mb-8">
+                <button id="menuBtn" class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-neutral-800 ring-1 ring-white/10 hover:bg-neutral-700" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="drawerPanel">
+                    <svg class="h-5 w-5 text-neutral-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+
                 <a href="{{ path('app_movies_index') }}" class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight">
                     <img src="{{ asset('Logo/logo.png') }}" alt="Logo" class="h-9 w-auto rounded-md ring-1 ring-white/10 bg-white/5">
                     <span>MovieNight</span>
                 </a>
 
-                <div class="relative">
-                    <button id="menuBtn" class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-neutral-800 ring-1 ring-white/10 hover:bg-neutral-700" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menuPanel">
-                        <svg class="h-5 w-5 text-neutral-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="3" y1="6" x2="21" y2="6" />
-                            <line x1="3" y1="12" x2="21" y2="12" />
-                            <line x1="3" y1="18" x2="21" y2="18" />
-                        </svg>
-                    </button>
-
-                    <div id="menuPanel" class="hidden absolute right-0 mt-2 w-48 overflow-hidden rounded-xl bg-neutral-900 ring-1 ring-white/10 shadow-xl">
-                        <a href="{{ path('app_contact') }}" class="block px-4 py-2 text-sm text-neutral-200 hover:bg-neutral-800">Contact</a>
-                        <a href="{{ path('app_about') }}" class="block px-4 py-2 text-sm text-neutral-200 hover:bg-neutral-800">À propos</a>
-                        <a href="{{ path('app_login') }}" class="block px-4 py-2 text-sm text-neutral-200 hover:bg-neutral-800">Connexion</a>
+                <form action="#" method="get" class="ml-auto flex-1 max-w-xl">
+                    <label for="q" class="sr-only">Rechercher un film</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-neutral-400">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </span>
+                        <input id="q" name="q" type="search" placeholder="Rechercher un film…" class="w-full pl-10 pr-4 py-2 rounded-lg bg-neutral-800 border border-white/10 text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-rose-500" />
                     </div>
-                </div>
+                </form>
             </header>
 
             {% block body %}{% endblock %}
@@ -57,10 +80,27 @@
             <script>
                 (function(){
                     const btn = document.getElementById('menuBtn');
-                    const panel = document.getElementById('menuPanel');
-                    if (!btn || !panel) return;
-                    function closeOnOutside(e){ if(!panel.contains(e.target) && !btn.contains(e.target)){ panel.classList.add('hidden'); document.removeEventListener('click', closeOnOutside); btn.setAttribute('aria-expanded','false'); } }
-                    btn.addEventListener('click', function(e){ e.stopPropagation(); const isHidden = panel.classList.contains('hidden'); panel.classList.toggle('hidden'); btn.setAttribute('aria-expanded', String(isHidden)); if(isHidden){ setTimeout(()=>document.addEventListener('click', closeOnOutside),0); } });
+                    const panel = document.getElementById('drawerPanel');
+                    const backdrop = document.getElementById('drawerBackdrop');
+                    const close = document.getElementById('drawerClose');
+
+                    function openDrawer(){
+                        panel.classList.remove('-translate-x-full');
+                        backdrop.classList.remove('hidden');
+                        btn?.setAttribute('aria-expanded','true');
+                        document.body.style.overflow = 'hidden';
+                    }
+                    function closeDrawer(){
+                        panel.classList.add('-translate-x-full');
+                        backdrop.classList.add('hidden');
+                        btn?.setAttribute('aria-expanded','false');
+                        document.body.style.overflow = '';
+                    }
+
+                    btn?.addEventListener('click', (e)=>{ e.stopPropagation(); openDrawer(); });
+                    backdrop?.addEventListener('click', closeDrawer);
+                    close?.addEventListener('click', closeDrawer);
+                    window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ closeDrawer(); }});
                 })();
             </script>
         {% endblock %}
