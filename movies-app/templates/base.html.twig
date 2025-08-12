@@ -38,7 +38,6 @@
                 </button>
             </div>
             <nav class="p-3 space-y-2">
-                <a href="{{ path('app_login') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200 font-medium">Connexion</a>
                 <a href="{{ path('app_movies_index') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Films</a>
                 <a href="{{ path('app_series') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Séries</a>
                 <a href="{{ path('app_quiz') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Quiz</a>
@@ -82,6 +81,11 @@
                         <input id="q" name="q" type="search" placeholder="Rechercher un film…" class="w-full pl-10 pr-4 py-2 rounded-lg bg-neutral-800 border border-white/10 text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-rose-500" />
                     </div>
                 </form>
+
+                <a href="{{ path('app_login') }}" class="ml-4 inline-flex items-center gap-2 rounded-lg bg-rose-600 hover:bg-rose-500 px-4 py-2 font-semibold shadow-lg shadow-rose-600/20 ring-1 ring-white/10">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v4"/><path d="M14 10 21 3"/><path d="M10 14 3 21"/><path d="M3 10h7v11H3z"/></svg>
+                    Connexion
+                </a>
             </header>
 
             {% block body %}{% endblock %}
