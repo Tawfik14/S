@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}MovieNight{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🎬</text></svg>">
+        {% block stylesheets %}{% endblock %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] },
+                        colors: {
+                            surface: { 900: '#0b0b0d', 800: '#121216' }
+                        }
+                    }
+                }
+            }
+        </script>
+    </head>
+    <body class="min-h-full bg-surface-900 text-neutral-100 antialiased">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <header class="flex items-center justify-between mb-8">
+                <a href="{{ path('app_movies_index') }}" class="inline-flex items-center gap-2 text-xl font-extrabold tracking-tight">
+                    <span class="text-rose-500">🎬</span>
+                    <span>MovieNight</span>
+                </a>
+                <nav class="text-sm text-neutral-400">Catalogue de films</nav>
+            </header>
+
+            {% block body %}{% endblock %}
+
+            <footer class="mt-16 text-sm text-neutral-500">Fait avec Symfony • Thème sombre moderne</footer>
+        </div>
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>
