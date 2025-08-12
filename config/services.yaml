@@ -1,0 +1,22 @@
+parameters: { }
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Entity/'
+      - '../src/Kernel.php'
+
+  # Provider utilisateur basé sur Doctrine (email comme identifiant)
+  app.user_provider:
+    class: Symfony\Bridge\Doctrine\Security\User\EntityUserProvider
+    arguments:
+      - '@doctrine'
+      - 'App\Entity\User'
+      - 'email'
+

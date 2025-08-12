@@ -1,0 +1,46 @@
+security:
+  password_hashers:
+    App\Entity\User:
+      algorithm: auto
+
+  role_hierarchy:
+    ROLE_ADMIN: [ROLE_USER]
+
+  providers:
+    app_user_provider:
+      id: app.user_provider
+
+  firewalls:
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+
+    main:
+      lazy: true
+      provider: app_user_provider
+
+      form_login:
+        login_path: app_login
+        check_path: app_login
+        enable_csrf: true
+        username_parameter: email
+        password_parameter: password
+        default_target_path: app_dashboard
+        always_use_default_target_path: true
+
+      remember_me:
+        secret: '%kernel.secret%'
+        lifetime: 1209600   # 14 jours
+        path: /
+        # always_remember: true  # à activer si tu veux forcer le remember-me
+
+      logout:
+        path: app_logout
+        # target: app_movies_index
+
+  access_control:
+    - { path: ^/(connexion|inscription)$, roles: PUBLIC_ACCESS }
+    - { path: ^/dashboard, roles: ROLE_USER }
+    - { path: ^/admin, roles: ROLE_ADMIN }
+
+
