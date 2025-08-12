@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+{% block title %}Recherche — {{ q }}{% endblock %}
+
+{% block body %}
+<h1 class="text-2xl font-bold mb-4">Résultats pour “{{ q }}”</h1>
+
+{% if results is empty %}
+  <p class="text-neutral-400">Aucun résultat trouvé.</p>
+{% else %}
+  <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
+    {% for r in results %}
+      {% set title = r.title ?? r.name %}
+      {% set slug = title|slug %}
+
+      {% if r.media_type == 'movie' %}
+        <a href="{{ path('app_movie_show', { id: r.id, slug: slug }) }}" class="group">
+          <div class="aspect-[2/3] overflow-hidden rounded-xl bg-neutral-900 ring-1 ring-white/10">
+            <img src="{{ img.img(r.poster_path, 'w342') }}" alt="{{ title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="mt-2 text-sm font-medium truncate">{{ title }}</div>
+          {% if r.release_date %}<div class="text-xs text-neutral-400">{{ r.release_date|date('Y') }}</div>{% endif %}
+        </a>
+
+      {% elseif r.media_type == 'tv' %}
+        <a href="{{ path('app_tv_show', { id: r.id, slug: slug }) }}" class="group">
+          <div class="aspect-[2/3] overflow-hidden rounded-xl bg-neutral-900 ring-1 ring-white/10">
+            <img src="{{ img.img(r.poster_path, 'w342') }}" alt="{{ title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          </div>
+          <div class="mt-2 text-sm font-medium truncate">{{ title }} <span class="text-neutral-400">(Série)</span></div>
+          {% if r.first_air_date %}<div class="text-xs text-neutral-400">{{ r.first_air_date|date('Y') }}</div>{% endif %}
+        </a>
+
+      {% elseif r.media_type == 'person' %}
+        {# Optionnel : tu peux lier vers la fiche personne si tu veux #}
+        {# <a href="{{ path('app_person_show', { id: r.id, slug: slug }) }}" class="group"> ... </a> #}
+        <div class="opacity-80">
+          <div class="aspect-[2/3] overflow-hidden rounded-xl bg-neutral-900 ring-1 ring-white/10">
+            <img src="{{ img.img(r.profile_path, 'w342') }}" alt="{{ title }}" class="w-full h-full object-cover">
+          </div>
+          <div class="mt-2 text-sm font-medium truncate">{{ title }} <span class="text-neutral-400">(Personne)</span></div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
+

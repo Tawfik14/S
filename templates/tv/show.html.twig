@@ -1,0 +1,176 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ tv.name }} — Série{% endblock %}
+
+{% block body %}
+<article class="space-y-8">
+  {# === Bandeau principal === #}
+  <section class="grid gap-8 lg:grid-cols-3">
+    <div class="lg:col-span-2 space-y-4">
+      <div class="aspect-[16/9] rounded-2xl overflow-hidden ring-1 ring-white/10 bg-neutral-900">
+        {% if trailerKey %}
+          <iframe
+            class="w-full h-full"
+            src="https://www.youtube.com/embed/{{ trailerKey }}"
+            title="Trailer"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+        {% else %}
+          <img src="{{ img.img(tv.backdrop_path ?: tv.poster_path, 'w780') }}" alt="{{ tv.name }}" class="w-full h-full object-cover">
+        {% endif %}
+      </div>
+
+      <div>
+        <h1 class="text-3xl font-extrabold">{{ tv.name }}</h1>
+        {% if tv.tagline %}<p class="mt-2 text-neutral-300">{{ tv.tagline }}</p>{% endif %}
+        <div class="mt-2 text-sm text-neutral-400">
+          {% if tv.first_air_date %}Première diffusion : {{ tv.first_air_date|date('d/m/Y') }}{% endif %}
+          {% if tv.number_of_seasons %} • Saisons : {{ tv.number_of_seasons }}{% endif %}
+          {% if tv.number_of_episodes %} • Épisodes : {{ tv.number_of_episodes }}{% endif %}
+          {% if tv.vote_average %} • Note TMDB : {{ tv.vote_average|number_format(1, ',', ' ') }}/10{% endif %}
+        </div>
+        {% if tv.genres %}
+          <div class="mt-2 text-sm text-neutral-300">
+            Genres : {{ tv.genres|map(g => g.name)|join(', ') }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <aside class="lg:col-span-1">
+      <div class="rounded-2xl bg-neutral-900 ring-1 ring-white/10 p-6">
+        <h2 class="text-lg font-semibold">Distribution</h2>
+        <ul class="mt-3 space-y-3">
+          {% for c in cast %}
+            {% set pslug = (c.name ?? 'personne')|slug %}
+            <li>
+              <a href="{{ path('app_person_show', { id: c.id, slug: pslug }) }}" class="flex items-center gap-3 group">
+                <img src="{{ c.profile_path ? img.img(c.profile_path, 'w185') : asset('placeholder-avatar.png') }}" alt="{{ c.name }}" class="w-12 h-12 rounded-lg object-cover ring-1 ring-white/10 bg-neutral-800 group-hover:ring-rose-500/40 transition">
+                <div>
+                  <div class="font-medium group-hover:text-rose-400 transition">{{ c.name }}</div>
+                  {% if c.character %}<div class="text-sm text-neutral-400">{{ c.character }}</div>{% endif %}
+                </div>
+              </a>
+            </li>
+          {% else %}
+            <li class="text-neutral-400 text-sm">Casting indisponible.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </aside>
+  </section>
+
+  {# === Onglets === #}
+  <section>
+    <div class="border-b border-white/10 flex gap-6">
+      <button class="tab-btn px-3 py-2 text-sm font-semibold border-b-2 border-transparent data-[active=true]:border-rose-500 data-[active=true]:text-white text-neutral-300"
+              data-tab="resume" data-active="true">Résumé</button>
+      <button class="tab-btn px-3 py-2 text-sm font-semibold border-b-2 border-transparent data-[active=true]:border-rose-500 data-[active=true]:text-white text-neutral-300"
+              data-tab="seasons">Saisons & épisodes</button>
+    </div>
+
+    <div class="tab-panel mt-4" id="tab-resume" data-tab="resume">
+      {% if tv.overview %}
+        <p class="text-neutral-200 leading-relaxed">{{ tv.overview }}</p>
+      {% else %}
+        <p class="text-neutral-400">Aucun synopsis disponible.</p>
+      {% endif %}
+    </div>
+
+    <div class="tab-panel mt-4 hidden" id="tab-seasons" data-tab="seasons">
+      {# Accordéon saisons (lazy load) #}
+      {% if tv.seasons is not empty %}
+        <div class="space-y-3" id="seasonsAccordion" data-tvid="{{ tv.id }}">
+          {% for s in tv.seasons %}
+            {% if s.season_number is same as(0) %}{# tu peux ignorer Specials si tu veux #}{% endif %}
+            <div class="rounded-xl bg-neutral-900 ring-1 ring-white/10 overflow-hidden">
+              <button class="season-toggle w-full text-left px-4 py-3 flex items-center justify-between hover:bg-neutral-800"
+                      data-season="{{ s.season_number }}">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-16 rounded-md overflow-hidden ring-1 ring-white/10 bg-neutral-800 shrink-0">
+                    <img src="{{ img.img(s.poster_path, 'w185') }}" alt="S{{ s.season_number }}" class="w-full h-full object-cover">
+                  </div>
+                  <div>
+                    <div class="font-semibold">Saison {{ s.season_number }}{% if s.air_date %} — {{ s.air_date|date('Y') }}{% endif %}</div>
+                    <div class="text-sm text-neutral-400">
+                      {% if s.episode_count %}{{ s.episode_count }} épisodes{% endif %}
+                    </div>
+                  </div>
+                </div>
+                <svg class="chev h-5 w-5 text-neutral-400 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </button>
+              <div class="season-panel hidden p-4 border-t border-white/10" id="season-panel-{{ s.season_number }}">
+                <div class="text-neutral-400 text-sm">Chargement…</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-neutral-400">Aucune saison trouvée.</div>
+      {% endif %}
+    </div>
+  </section>
+</article>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    (function(){
+      // Onglets
+      const tabs = document.querySelectorAll('.tab-btn');
+      const panels = document.querySelectorAll('.tab-panel');
+      tabs.forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const target = btn.dataset.tab;
+          tabs.forEach(b=>b.dataset.active = (b===btn).toString());
+          panels.forEach(p=> p.classList.toggle('hidden', p.dataset.tab !== target));
+        });
+      });
+
+      // Accordéon saisons (lazy load)
+      const accordion = document.getElementById('seasonsAccordion');
+      if (!accordion) return;
+
+      const tvId = accordion.dataset.tvid;
+
+      // URL modèle VALIDE générée par Twig (season=1), qu'on remplace côté JS
+      const urlTemplate = `{{ path('app_tv_season', { id: tv.id, season: 1 }) }}`;
+
+      accordion.querySelectorAll('.season-toggle').forEach((tog)=>{
+        tog.addEventListener('click', async ()=>{
+          const season = tog.dataset.season;
+          const panel = document.getElementById(`season-panel-${season}`);
+          const chev = tog.querySelector('.chev');
+
+          // toggle
+          const isOpen = !panel.classList.contains('hidden');
+          accordion.querySelectorAll('.season-panel').forEach(p=>p.classList.add('hidden'));
+          accordion.querySelectorAll('.chev').forEach(c=>c.style.transform='');
+          if (!isOpen) {
+            panel.classList.remove('hidden');
+            chev.style.transform = 'rotate(180deg)';
+          } else {
+            panel.classList.add('hidden');
+            chev.style.transform = '';
+            return;
+          }
+
+          // si déjà chargé, ne pas recharger
+          if (panel.dataset.loaded === 'true') return;
+
+          try {
+            panel.innerHTML = '<div class="text-neutral-400 text-sm">Chargement…</div>';
+            const url = urlTemplate.replace('/season/1', `/season/${season}`);
+            const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+            panel.innerHTML = await res.text();
+            panel.dataset.loaded = 'true';
+          } catch (e) {
+            panel.innerHTML = '<div class="text-rose-400 text-sm">Impossible de charger cette saison.</div>';
+          }
+        });
+      });
+    })();
+  </script>
+{% endblock %}
+
