@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+{% block title %}Gérer — Administration{% endblock %}
+
+{% block body %}
+<section class="max-w-5xl mx-auto">
+  <div class="grid gap-6 sm:grid-cols-2">
+    <a href="{{ path('app_admin_media') }}" class="group rounded-2xl bg-neutral-900 ring-1 ring-white/10 p-6 hover:ring-rose-400/40 transition">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold">Ajouter / Gérer Films & Séries</h2>
+        <span class="text-rose-400">→</span>
+      </div>
+      <p class="mt-2 text-neutral-400 text-sm">Créer des fiches avec trailer, synopsis, date de sortie, etc.</p>
+    </a>
+
+    <a href="{{ path('app_admin_quiz') }}" class="group rounded-2xl bg-neutral-900 ring-1 ring-white/10 p-6 hover:ring-rose-400/40 transition">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold">Ajouter un Quiz</h2>
+        <span class="text-rose-400">→</span>
+      </div>
+      <p class="mt-2 text-neutral-400 text-sm">Bientôt: créer des quiz pour les utilisateurs.</p>
+    </a>
+  </div>
+</section>
+{% endblock %}
+
