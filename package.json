@@ -1,0 +1,37 @@
+{
+  "name": "movie-portal",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tawfik14/S.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tawfik14/S/issues"
+  },
+  "homepage": "https://github.com/Tawfik14/S#readme",
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "connect-sqlite3": "^0.9.16",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.2",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

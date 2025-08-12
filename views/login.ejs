@@ -1,0 +1,17 @@
+<section class="auth">
+  <h1>Connexion</h1>
+  <% if (error) { %>
+    <div class="alert"><%= error %></div>
+  <% } %>
+  <form method="post" action="/login" class="form">
+    <label>
+      Nom d'utilisateur
+      <input name="username" required />
+    </label>
+    <label>
+      Mot de passe
+      <input name="password" type="password" required />
+    </label>
+    <button type="submit">Se connecter</button>
+  </form>
+</section>

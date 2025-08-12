@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title ? (title + ' · ') : '' %>CinéHub</title>
+  <link rel="stylesheet" href="/public/css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">CinéHub</a>
+    <div class="menu">
+      <button id="menu-toggle" aria-label="Menu" class="hamburger" aria-expanded="false" aria-controls="menu-panel">
+        <span></span><span></span><span></span>
+      </button>
+      <nav id="menu-panel" class="menu-panel" hidden>
+        <ul>
+          <li><a href="/">Accueil</a></li>
+          <% if (!currentUser) { %>
+            <li><a href="/login">Connexion</a></li>
+            <li><a href="/signup">Inscription</a></li>
+          <% } else { %>
+            <% if (currentUser.role === 'admin') { %>
+              <li><a href="/admin/movies/new">Ajouter un film</a></li>
+            <% } %>
+            <li>
+              <form action="/logout" method="post">
+                <button type="submit" class="linklike">Se déconnecter (<%= currentUser.username %>)</button>
+              </form>
+            </li>
+          <% } %>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="content">
+    <%- body %>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <%= new Date().getFullYear() %> CinéHub</p>
+  </footer>
+
+  <script src="/public/js/menu.js"></script>
+</body>
+</html>

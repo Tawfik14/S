@@ -1,0 +1,37 @@
+<section class="admin">
+  <h1>Ajouter un film</h1>
+  <% if (error) { %>
+    <div class="alert"><%= error %></div>
+  <% } %>
+  <form method="post" action="/admin/movies" enctype="multipart/form-data" class="form">
+    <label>
+      Titre
+      <input name="title" required />
+    </label>
+    <label>
+      Acteurs (séparés par des virgules)
+      <input name="actors_text" />
+    </label>
+    <label>
+      Synopsis
+      <textarea name="synopsis" rows="4"></textarea>
+    </label>
+    <label>
+      Lien vidéo (YouTube embed ou MP4 direct)
+      <input name="video_url" />
+    </label>
+    <fieldset>
+      <legend>Poster</legend>
+      <label>
+        Fichier à téléverser
+        <input type="file" name="poster" accept="image/*" />
+      </label>
+      <div class="muted">ou</div>
+      <label>
+        URL du poster
+        <input name="poster_url" placeholder="https://..." />
+      </label>
+    </fieldset>
+    <button type="submit">Ajouter</button>
+  </form>
+</section>
