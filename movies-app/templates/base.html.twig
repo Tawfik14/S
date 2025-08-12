@@ -28,7 +28,7 @@
         <aside id="drawerPanel" class="fixed top-0 left-0 z-50 h-full w-80 max-w-[84%] bg-neutral-900 ring-1 ring-white/10 -translate-x-full transition-transform duration-300 ease-out">
             <div class="p-4 flex items-center justify-between border-b border-white/10">
                 <div class="inline-flex items-center gap-3">
-                    <img src="{{ asset('Logo/logo.png') }}" alt="Logo" class="h-12 w-auto rounded bg-white/5 ring-1 ring-white/10">
+                    <img src="{{ asset('Logo/logo.png') }}" alt="Logo" class="h-20 w-auto rounded bg-white/5 ring-1 ring-white/10">
                 </div>
                 <button id="drawerClose" class="inline-flex items-center justify-center w-9 h-9 rounded-lg hover:bg-neutral-800" aria-label="Fermer le menu">
                     <svg class="h-5 w-5 text-neutral-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -37,11 +37,25 @@
                     </svg>
                 </button>
             </div>
-            <nav class="p-3">
-                <a href="{{ path('app_movies_index') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Accueil</a>
-                <a href="{{ path('app_contact') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Contact</a>
-                <a href="{{ path('app_about') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">À propos</a>
-                <a href="{{ path('app_login') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Connexion</a>
+            <nav class="p-3 space-y-2">
+                <a href="{{ path('app_login') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200 font-medium">Connexion</a>
+                <a href="{{ path('app_movies_index') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Films</a>
+                <a href="{{ path('app_series') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Séries</a>
+                <a href="{{ path('app_quiz') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Quiz</a>
+                <div class="pt-3 mt-3 border-t border-white/10">
+                    <div class="px-4 pb-2 text-xs uppercase tracking-wide text-neutral-400">Catégories</div>
+                    <div class="grid grid-cols-1">
+                        <a href="{{ path('app_movies_index', {genre: 'Action'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Action</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Aventure'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Aventure</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Science‑fiction'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Science‑fiction</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Drame'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Drame</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Thriller'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Thriller</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Comédie'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Comédie</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Animation'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Animation</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Fantastique'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Fantastique</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Horreur'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Horreur</a>
+                    </div>
+                </div>
             </nav>
         </aside>
 
@@ -56,7 +70,7 @@
                 </button>
 
                 <a href="{{ path('app_movies_index') }}" class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight">
-                    <img src="{{ asset('Logo/logo.png') }}" alt="Logo" class="h-12 w-auto rounded-md ring-1 ring-white/10 bg-white/5">
+                    <img src="{{ asset('Logo/logo.png') }}" alt="Logo" class="h-20 w-auto rounded-md ring-1 ring-white/10 bg-white/5">
                 </a>
 
                 <form action="#" method="get" class="ml-auto flex-1 max-w-xl">
@@ -72,7 +86,13 @@
 
             {% block body %}{% endblock %}
 
-            <footer class="mt-16 text-sm text-neutral-500">Fait avec Symfony • Thème sombre moderne</footer>
+            <footer class="mt-16 text-sm text-neutral-500 flex items-center justify-between">
+                <span>Fait avec Symfony • Thème sombre moderne</span>
+                <span class="space-x-4">
+                    <a href="{{ path('app_contact') }}" class="text-neutral-400 hover:text-neutral-200">Contact</a>
+                    <a href="{{ path('app_about') }}" class="text-neutral-400 hover:text-neutral-200">À propos</a>
+                </span>
+            </footer>
         </div>
         {% block javascripts %}
             <script>
