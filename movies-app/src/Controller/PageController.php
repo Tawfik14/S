@@ -20,11 +20,7 @@ final class PageController extends AbstractController
         return $this->render('pages/about.html.twig');
     }
 
-    #[Route('/connexion', name: 'app_login')]
-    public function login(): Response
-    {
-        return $this->render('pages/login.html.twig');
-    }
+
 
     #[Route('/series', name: 'app_series')]
     public function series(): Response
