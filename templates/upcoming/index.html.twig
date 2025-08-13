@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+{% block title %}À venir — Sorties cinéma{% endblock %}
+
+{% block body %}
+<section class="space-y-10">
+  <header class="rounded-2xl bg-gradient-to-r from-rose-600/20 via-fuchsia-600/10 to-transparent ring-1 ring-white/10 p-6 sm:p-8">
+    <h1 class="text-3xl sm:text-4xl font-extrabold">À venir</h1>
+    <p class="mt-2 text-neutral-300 max-w-2xl">Découvrez les prochaines sorties, triées chronologiquement. Cliquez pour voir la fiche avec trailer, synopsis et casting.</p>
+  </header>
+
+  <div class="space-y-12">
+    {% for month, items in groups %}
+      {% set year = month|slice(0,4) %}
+      {% set monthNum = month|slice(5,2) %}
+      {% set monthName = {
+        '01':'Janvier','02':'Février','03':'Mars','04':'Avril','05':'Mai','06':'Juin',
+        '07':'Juillet','08':'Août','09':'Septembre','10':'Octobre','11':'Novembre','12':'Décembre'
+      }[monthNum] %}
+
+      <section>
+        {# En-tête sticky du mois #}
+        <div class="sticky top-2 z-10 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+          <div class="backdrop-blur-md bg-neutral-900/70 rounded-xl ring-1 ring-white/10 inline-flex items-baseline gap-3 px-4 py-2">
+            <span class="text-xl font-bold">{{ monthName }} {{ year }}</span>
+            <span class="text-sm text-neutral-400">{{ items|length }} sorties</span>
+          </div>
+        </div>
+
+        <div class="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {% for m in items %}
+            {% set title = m.title ?? m.name %}
+            {% set slug = title|slug %}
+
+            <a href="{{ path('app_movie_show', { id: m.id, slug: slug }) }}" class="group relative overflow-hidden rounded-2xl bg-neutral-900 ring-1 ring-white/10 hover:ring-rose-500/40 transition">
+              <div class="aspect-[16/9] overflow-hidden">
+                <img src="{{ img.img(m.backdrop_path ?: m.poster_path, 'w780') }}" alt="{{ title }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+              </div>
+
+              {# Badge date de sortie bien visible #}
+              {% if m.release_date %}
+                <div class="absolute top-3 left-3">
+                  <div class="rounded-lg bg-black/70 ring-1 ring-white/20 px-3 py-1.5">
+                    <span class="text-sm font-semibold">
+                      {{ m.release_date|date('d') }}
+                      {{ m.release_date|date('M')|replace({
+                        'Jan':'Jan','Feb':'Fév','Mar':'Mars','Apr':'Avr','May':'Mai','Jun':'Juin',
+                        'Jul':'Juil','Aug':'Août','Sep':'Sept','Oct':'Oct','Nov':'Nov','Dec':'Déc'
+                      }) }}
+                    </span>
+                    <span class="text-xs text-neutral-300">• {{ m.release_date|date('Y') }}</span>
+                  </div>
+                </div>
+              {% endif %}
+
+              <div class="p-4">
+                <div class="flex items-center gap-2 text-xs text-neutral-300">
+                  {% if m.vote_average %}
+                    <span class="px-2 py-0.5 rounded-full bg-white/10 ring-1 ring-white/10">
+                      TMDB {{ m.vote_average|number_format(1, ',', ' ') }}/10
+                    </span>
+                  {% endif %}
+                  {% if m.original_language %}
+                    <span class="text-neutral-400">• {{ m.original_language|upper }}</span>
+                  {% endif %}
+                </div>
+                <div class="mt-1 font-semibold line-clamp-1">{{ title }}</div>
+                {% if m.overview %}
+                  <p class="mt-1 text-sm text-neutral-400 line-clamp-2">{{ m.overview }}</p>
+                {% endif %}
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% else %}
+      <div class="text-neutral-400">Aucune sortie à venir trouvée.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+

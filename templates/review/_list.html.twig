@@ -1,0 +1,99 @@
+<div id="reviews" data-endpoint="{{ path('app_reviews_list', {
+  mediaType: mediaType, tmdbId: tmdbId, sort: sort|default('recent') }) }}">
+  <div class="flex gap-2 mb-3">
+    {% set sorts = {'recent':'Récents','helpful':'+ utiles','rating_desc':'Mieux notés'} %}
+    {% for k,v in sorts %}
+      <a href="#" data-sort="{{ k }}" class="px-3 py-1 rounded border {% if sort|default('recent')==k %}bg-black text-white{% endif %}">
+        {{ v }}
+      </a>
+    {% endfor %}
+  </div>
+  <div id="reviews-list" class="space-y-4"></div>
+  <button id="reviews-more" class="mt-4 px-4 py-2 rounded border">Charger plus</button>
+</div>
+
+<script>
+(function(){
+  const root = document.getElementById('reviews');
+  if(!root) return;
+
+  let page = 1, sort = (new URL(root.dataset.endpoint, location)).searchParams.get('sort') || 'recent';
+  const list = root.querySelector('#reviews-list');
+  const more = root.querySelector('#reviews-more');
+
+  async function fetchPage(reset=false){
+    const url = new URL(root.dataset.endpoint, location);
+    url.searchParams.set('page', page);
+    url.searchParams.set('sort', sort);
+    const res = await fetch(url);
+    const json = await res.json();
+    if(reset) list.innerHTML = '';
+    json.items.forEach(r => {
+      const el = document.createElement('div');
+      el.className = 'p-3 border rounded';
+      el.innerHTML = `
+        <div class="flex items-center justify-between mb-1">
+          <div class="font-semibold">${r.title}</div>
+          <div class="text-sm opacity-70">${r.rating ? '⭐ ' + r.rating + '/10' : ''}</div>
+        </div>
+        <div class="text-sm mb-2">${r.body.replace(/</g,'&lt;')}</div>
+        <div class="text-xs flex items-center gap-3">
+          <button class="helpful px-2 py-1 border rounded" data-id="${r.id}">Utile (${r.helpfulCount})</button>
+          <button class="report px-2 py-1 border rounded" data-id="${r.id}">Signaler</button>
+        </div>
+      `;
+      list.appendChild(el);
+    });
+    if(json.items.length === 0 && page === 1){
+      list.innerHTML = '<div class="opacity-70">Aucun avis pour le moment.</div>';
+    }
+  }
+
+  // tri
+  root.querySelectorAll('a[data-sort]').forEach(a => {
+    a.addEventListener('click', (e)=>{
+      e.preventDefault();
+      sort = a.dataset.sort; page = 1;
+      fetchPage(true);
+    });
+  });
+
+  // pagination
+  more.addEventListener('click', ()=>{ page++; fetchPage(false); });
+
+  // actions
+  list.addEventListener('click', async (e)=>{
+    const t = e.target.closest('button');
+    if(!t) return;
+    if(t.classList.contains('helpful')){
+      const id = t.dataset.id;
+      const res = await fetch(`/api/reviews/${id}/helpful`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({_token: '{{ csrf_token('review_helpful') }}'})
+      });
+      const json = await res.json();
+      if(json.ok){ t.textContent = `Utile (${json.helpfulCount})`; } else { alert(json.error || 'Erreur'); }
+    }
+    if(t.classList.contains('report')){
+      const id = t.dataset.id;
+      const reason = prompt('Raison du signalement ?');
+      if(!reason) return;
+      const res = await fetch(`/api/reviews/${id}/report`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({_token: '{{ csrf_token('review_report') }}', reason})
+      });
+      const json = await res.json();
+      if(json.ok){ alert('Signalement envoyé. Merci.'); } else { alert(json.error || 'Erreur'); }
+    }
+  });
+
+  // refresh quand on publie
+  document.addEventListener('reviews:updated', ()=>{ page = 1; fetchPage(true); });
+
+  // initial
+  fetchPage(true);
+})();
+</script>
+

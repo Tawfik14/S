@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+{% block title %}Accueil — MovieNight{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+{% endblock %}
+
+{% block body %}
+<div class="space-y-10">
+  {# HERO / Tendances #}
+  <section>
+    <h2 class="text-2xl font-bold mb-3">Tendances</h2>
+    <div class="swiper trending">
+      <div class="swiper-wrapper">
+        {% for m in trending %}
+          {% set title = m.title ?? m.name %}
+          {% set slug = title|slug %}
+          <a class="swiper-slide group" href="{{ path('app_movie_show', { id: m.id, slug: slug }) }}">
+            <div class="aspect-[16/9] overflow-hidden rounded-2xl ring-1 ring-white/10 bg-neutral-900">
+              <img src="{{ img.img(m.backdrop_path ?: m.poster_path, 'w780') }}" alt="{{ title }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+            </div>
+            <div class="mt-2">
+              <div class="font-semibold">{{ title }}</div>
+              {% if m.release_date or m.first_air_date %}
+                <div class="text-sm text-neutral-400">{{ (m.release_date ?? m.first_air_date)|date('Y') }}</div>
+              {% endif %}
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>
+  </section>
+
+  {# Rangées posters #}
+  {% set rows = {
+    'À venir': upcoming,
+    'Populaires': popular,
+    'Mieux notés': topRated
+  } %}
+
+  {% for label, items in rows %}
+    <section>
+      <h2 class="text-2xl font-bold mb-3">{{ label }}</h2>
+      <div class="swiper posters">
+        <div class="swiper-wrapper">
+          {% for m in items %}
+            {% set slug = (m.title ?? 'film')|slug %}
+            <a class="swiper-slide group" href="{{ path('app_movie_show', { id: m.id, slug: slug }) }}">
+              <div class="aspect-[2/3] overflow-hidden rounded-xl ring-1 ring-white/10 bg-neutral-900">
+                <img src="{{ img.img(m.poster_path, 'w342') }}" alt="{{ m.title }}" class="w-full h-full object-cover">
+              </div>
+              <div class="mt-2 text-sm font-medium truncate">{{ m.title }}</div>
+              <div class="text-xs text-neutral-400">{{ m.release_date ? m.release_date|date('Y') : '' }}</div>
+            </a>
+          {% endfor %}
+        </div>
+        <div class="swiper-scrollbar"></div>
+      </div>
+    </section>
+  {% endfor %}
+
+  {# Par genres #}
+  {% for genreName, items in byGenres %}
+    <section>
+      <h2 class="text-2xl font-bold mb-3">{{ genreName }}</h2>
+      <div class="swiper posters">
+        <div class="swiper-wrapper">
+          {% for m in items %}
+            {% set slug = (m.title ?? 'film')|slug %}
+            <a class="swiper-slide group" href="{{ path('app_movie_show', { id: m.id, slug: slug }) }}">
+              <div class="aspect-[2/3] overflow-hidden rounded-xl ring-1 ring-white/10 bg-neutral-900">
+                <img src="{{ img.img(m.poster_path, 'w342') }}" alt="{{ m.title }}" class="w-full h-full object-cover">
+              </div>
+              <div class="mt-2 text-sm font-medium truncate">{{ m.title }}</div>
+              <div class="text-xs text-neutral-400">{{ m.release_date ? m.release_date|date('Y') : '' }}</div>
+            </a>
+          {% endfor %}
+        </div>
+        <div class="swiper-scrollbar"></div>
+      </div>
+    </section>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    // Slider hero large
+    new Swiper('.swiper.trending', {
+      slidesPerView: 1.1,
+      spaceBetween: 16,
+      centeredSlides: true,
+      navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+      breakpoints: {
+        640: { slidesPerView: 1.5 },
+        1024:{ slidesPerView: 2.2 },
+      }
+    });
+
+    // Carrousels posters
+    document.querySelectorAll('.swiper.posters').forEach((el) => {
+      new Swiper(el, {
+        slidesPerView: 3.2,
+        spaceBetween: 12,
+        scrollbar: { el: el.querySelector('.swiper-scrollbar'), draggable: true },
+        breakpoints: {
+          480: { slidesPerView: 4.2, spaceBetween: 12 },
+          640: { slidesPerView: 5.5, spaceBetween: 14 },
+          1024:{ slidesPerView: 7.5, spaceBetween: 16 },
+        }
+      });
+    });
+  </script>
+{% endblock %}
+
