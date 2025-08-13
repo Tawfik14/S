@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}MovieNight{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🎬</text></svg>">
+        {% block stylesheets %}{% endblock %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] },
+                        colors: { surface: { 900: '#0b0b0d', 800: '#121216' } }
+                    }
+                }
+            }
+        </script>
+    </head>
+    <body class="min-h-full bg-surface-900 text-neutral-100 antialiased">
+        <div id="drawerBackdrop" class="hidden fixed inset-0 bg-black/60 z-40"></div>
+
+        <aside id="drawerPanel" class="fixed top-0 left-0 z-50 h-full w-80 max-w-[84%] bg-neutral-900 ring-1 ring-white/10 -translate-x-full transition-transform duration-300 ease-out">
+            <div class="p-4 flex items-center justify-between border-b border-white/10">
+                <div class="inline-flex items-center gap-3">
+                    <img src="{{ asset('Logo/logo.png') }}" alt="Logo" class="h-20 w-auto rounded bg-white/5 ring-1 ring-white/10">
+                </div>
+                <button id="drawerClose" class="inline-flex items-center justify-center w-9 h-9 rounded-lg hover:bg-neutral-800" aria-label="Fermer le menu">
+                    <svg class="h-5 w-5 text-neutral-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="p-3 space-y-2">
+                <a href="{{ path('app_movies_index') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Films</a>
+                <a href="{{ path('app_series') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Séries</a>
+                <a href="{{ path('app_quiz') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Quiz</a>
+                <a href="{{ path('app_upcoming') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">À venir</a>
+                
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+  <a href="{{ path('app_watchlist') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">Ma liste</a>
+{% endif %}
+
+
+                <div class="pt-3 mt-3 border-t border-white/10">
+                    <div class="px-4 pb-2 text-xs uppercase tracking-wide text-neutral-400">Catégories</div>
+                    <div class="grid grid-cols-1">
+                        <a href="{{ path('app_movies_index', {genre: 'Action'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Action</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Aventure'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Aventure</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Science-fiction'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Science-fiction</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Drame'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Drame</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Thriller'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Thriller</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Comédie'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Comédie</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Animation'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Animation</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Fantastique'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Fantastique</a>
+                        <a href="{{ path('app_movies_index', {genre: 'Horreur'}) }}" class="block px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800">Horreur</a>
+                    </div>
+                </div>
+
+                {% if is_granted('ROLE_ADMIN') %}
+                    <div class="pt-3 mt-3 border-t border-white/10">
+                        <a href="{{ path('app_admin_manage') }}" class="block px-4 py-3 rounded-lg hover:bg-neutral-800 text-neutral-200">
+                            Gérer
+                        </a>
+                    </div>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <header class="flex items-center gap-4 mb-8">
+                <button id="menuBtn" class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-neutral-800 ring-1 ring-white/10 hover:bg-neutral-700" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="drawerPanel">
+                    <svg class="h-5 w-5 text-neutral-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+
+                <a href="{{ path('app_movies_index') }}" class="inline-flex items-center gap-3 text-xl font-extrabold tracking-tight">
+                    <img src="{{ asset('Logo/logo.png') }}" alt="Logo" class="h-20 w-auto rounded-md ring-1 ring-white/10 bg-white/5">
+                </a>
+
+                {# Barre de recherche + auto-complétion #}
+                <form action="{{ path('app_search') }}" method="get" class="ml-auto flex-1 max-w-xl relative" id="headerSearchForm">
+                    <label for="q" class="sr-only">Rechercher un film ou une série</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-neutral-400">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </span>
+                        <input id="q" name="q" type="search" autocomplete="off" placeholder="Rechercher un film ou une série…" class="w-full pl-10 pr-4 py-2 rounded-lg bg-neutral-800 border border-white/10 text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-rose-500" />
+                        <div id="searchDropdown" class="hidden absolute z-50 mt-2 w-full rounded-xl bg-neutral-900 ring-1 ring-white/10 shadow-xl overflow-hidden">
+                            <ul id="searchList" class="max-h-96 overflow-auto divide-y divide-white/5"></ul>
+                            <div id="searchEmpty" class="hidden px-4 py-3 text-sm text-neutral-400">Aucun résultat</div>
+                        </div>
+                    </div>
+                </form>
+
+                <a href="{{ path('app_register') }}" class="ml-4 inline-flex items-center gap-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 px-4 py-2 font-semibold ring-1 ring-white/10">
+                    S’inscrire
+                </a>
+                <a href="{{ path('app_login') }}" class="ml-2 inline-flex items-center gap-2 rounded-lg bg-rose-600 hover:bg-rose-500 px-4 py-2 font-semibold shadow-lg shadow-rose-600/20 ring-1 ring-white/10">
+                    Connexion
+                </a>
+            </header>
+
+            {% block body %}{% endblock %}
+
+            <footer class="mt-16 text-sm text-neutral-500 flex items-center justify-between">
+                <span>Fait avec Symfony • Thème sombre moderne</span>
+                <span class="space-x-4">
+                    <a href="{{ path('app_contact') }}" class="text-neutral-400 hover:text-neutral-200">Contact</a>
+                    <a href="{{ path('app_about') }}" class="text-neutral-400 hover:text-neutral-200">À propos</a>
+                </span>
+            </footer>
+        </div>
+
+        {% block javascripts %}
+            <script>
+                (function(){
+                    // --- Drawer ---
+                    const btn = document.getElementById('menuBtn');
+                    const panel = document.getElementById('drawerPanel');
+                    const backdrop = document.getElementById('drawerBackdrop');
+                    const close = document.getElementById('drawerClose');
+
+                    function openDrawer(){
+                        panel.classList.remove('-translate-x-full');
+                        backdrop.classList.remove('hidden');
+                        btn?.setAttribute('aria-expanded','true');
+                        document.body.style.overflow = 'hidden';
+                    }
+                    function closeDrawer(){
+                        panel.classList.add('-translate-x-full');
+                        backdrop.classList.add('hidden');
+                        btn?.setAttribute('aria-expanded','false');
+                        document.body.style.overflow = '';
+                    }
+
+                    btn?.addEventListener('click', (e)=>{ e.stopPropagation(); openDrawer(); });
+                    backdrop?.addEventListener('click', closeDrawer);
+                    close?.addEventListener('click', closeDrawer);
+                    window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ closeDrawer(); }});
+
+                    // --- Search Autocomplete ---
+                    const form = document.getElementById('headerSearchForm');
+                    const input = document.getElementById('q');
+                    const dropdown = document.getElementById('searchDropdown');
+                    const list = document.getElementById('searchList');
+                    const empty = document.getElementById('searchEmpty');
+
+                    let controller = null;
+                    let currentIndex = -1;
+
+                    const slugify = (s) => (s || '')
+                        .toString()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                        .toLowerCase()
+                        .replace(/[^a-z0-9\s-]/g, '')
+                        .trim()
+                        .replace(/\s+/g, '-')
+                        .replace(/-+/g, '-');
+
+                    const debounce = (fn, ms=250) => { let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); }; };
+                    const hide = () => { dropdown.classList.add('hidden'); currentIndex = -1; };
+                    const show = () => dropdown.classList.remove('hidden');
+
+                    const render = (items) => {
+                        list.innerHTML = '';
+                        if (!items.length) { empty.classList.remove('hidden'); show(); return; }
+                        empty.classList.add('hidden');
+                        for (const it of items) {
+                            const title = it.title || '';
+                            const year = it.year ? ` · ${it.year}` : '';
+                            const slug = slugify(title);
+                            const href = it.media_type === 'movie'
+                                ? `/movie/${it.id}-${slug}`
+                                : (it.media_type === 'tv'
+                                    ? `/tv/${it.id}-${slug}`
+                                    : '#');
+
+                            const img = it.poster
+                                ? `https://image.tmdb.org/t/p/w185${it.poster}`
+                                : (it.backdrop ? `https://image.tmdb.org/t/p/w300${it.backdrop}` : '');
+
+                            const li = document.createElement('li');
+                            li.innerHTML = `
+                                <a href="${href}" class="result-item flex items-center gap-3 px-3 py-2 hover:bg-neutral-800">
+                                    <div class="w-10 h-14 rounded-md bg-neutral-800 ring-1 ring-white/10 overflow-hidden shrink-0">
+                                        ${img ? `<img src="${img}" alt="${title}" class="w-full h-full object-cover">` : ''}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="text-sm font-medium truncate">${title}</div>
+                                        <div class="text-xs text-neutral-400 truncate">${it.media_type === 'tv' ? 'Série' : 'Film'}${year}</div>
+                                    </div>
+                                </a>
+                            `;
+                            list.appendChild(li);
+                        }
+                        show();
+                    };
+
+                    const fetchResults = async (q) => {
+                        if (controller) controller.abort();
+                        controller = new AbortController();
+                        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: controller.signal });
+                        if (!res.ok) return render([]);
+                        const data = await res.json();
+                        render(data.results || []);
+                    };
+
+                    const onInput = debounce((e)=>{
+                        const q = e.target.value.trim();
+                        if (q.length < 2) { hide(); return; }
+                        fetchResults(q).catch(()=>{});
+                    }, 250);
+
+                    input?.addEventListener('input', onInput);
+                    input?.addEventListener('focus', ()=>{
+                        if (list.children.length || !empty.classList.contains('hidden')) show();
+                    });
+
+                    document.addEventListener('click', (e)=>{
+                        if (!form.contains(e.target)) hide();
+                    });
+
+                    // Navigation clavier
+                    form.addEventListener('keydown', (e)=>{
+                        const items = Array.from(list.querySelectorAll('.result-item'));
+                        if (!items.length || dropdown.classList.contains('hidden')) return;
+
+                        if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            currentIndex = (currentIndex + 1) % items.length;
+                            items.forEach((a,i)=>a.classList.toggle('bg-neutral-800', i===currentIndex));
+                            items[currentIndex].scrollIntoView({ block: 'nearest' });
+                        } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            currentIndex = (currentIndex - 1 + items.length) % items.length;
+                            items.forEach((a,i)=>a.classList.toggle('bg-neutral-800', i===currentIndex));
+                            items[currentIndex].scrollIntoView({ block: 'nearest' });
+                        } else if (e.key === 'Enter') {
+                            if (currentIndex >= 0 && items[currentIndex]) { e.preventDefault(); items[currentIndex].click(); }
+                        } else if (e.key === 'Escape') {
+                            hide();
+                        }
+                    });
+                })();
+            </script>
+        {% endblock %}
+    </body>
+</html>
+

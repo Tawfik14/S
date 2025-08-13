@@ -1,0 +1,215 @@
+{# Combien d'avis à charger à chaque clic #}
+{% set perPage = perPage is defined ? perPage : 5 %}
+
+<div id="reviews" class="mt-4" data-endpoint="{{ path('app_reviews_list', {
+  mediaType: mediaType, tmdbId: tmdbId, sort: sort|default('recent') }) }}">
+  <div class="flex gap-2 mb-3">
+    {% set sorts = {'recent':'Récents','helpful':'+ utiles','rating_desc':'Mieux notés'} %}
+    {% for k,v in sorts %}
+      <a href="#" data-sort="{{ k }}" class="px-3 py-1 rounded border border-white/10 text-sm {% if sort|default('recent')==k %}bg-white/10{% endif %}">
+        {{ v }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <div id="reviews-list" class="space-y-4"></div>
+
+  <div class="mt-4">
+    <button id="reviews-more" type="button" class="px-4 py-2 rounded border border-white/10">Charger plus</button>
+    <span id="reviews-loading" class="ml-3 text-sm text-neutral-400 hidden">Chargement…</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  const root = document.getElementById('reviews');
+  if(!root) return;
+
+  const PER_PAGE = {{ perPage|json_encode|raw }};
+
+  let page = 1;
+  let sort = (new URL(root.dataset.endpoint, location)).searchParams.get('sort') || 'recent';
+  let total = null;       // inconnu si l'API ne le renvoie pas
+  let loaded = 0;
+  let loading = false;
+
+  const list = root.querySelector('#reviews-list');
+  const more = root.querySelector('#reviews-more');
+  const spinner = root.querySelector('#reviews-loading');
+
+  function esc(s){return (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));}
+  function showSpinner(v){ spinner.classList.toggle('hidden', !v); }
+  function setMoreEnabled(v){
+    more.disabled = !v;
+    more.classList.toggle('opacity-50', !v);
+    more.classList.toggle('cursor-not-allowed', !v);
+  }
+  function maybeHideMore(lastBatchCount){
+    if (typeof total === 'number' && total >= 0) {
+      if (loaded >= total) more.classList.add('hidden');
+      else more.classList.remove('hidden');
+      return;
+    }
+    if (lastBatchCount < PER_PAGE) {
+      more.classList.add('hidden');
+    } else {
+      more.classList.remove('hidden');
+    }
+  }
+
+  async function fetchPage(reset=false){
+    if(loading) return;
+    loading = true; showSpinner(true); setMoreEnabled(false);
+
+    try {
+      const url = new URL(root.dataset.endpoint, location);
+      url.searchParams.set('page', page);
+      url.searchParams.set('sort', sort);
+      url.searchParams.set('limit', PER_PAGE);
+
+      const res = await fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const json = await res.json();
+
+      if (typeof json.total === 'number') total = json.total;
+
+      if(reset){
+        list.innerHTML = '';
+        loaded = 0;
+        more.classList.remove('hidden');
+      }
+
+      const items = Array.isArray(json.items) ? json.items : [];
+
+      if (page === 1 && items.length === 0) {
+        list.innerHTML = '<div class="opacity-70 text-sm">Aucun avis pour le moment.</div>';
+        more.classList.add('hidden');
+      } else {
+        items.forEach(r => {
+          const el = document.createElement('div');
+          el.className = 'p-3 border border-white/10 rounded';
+          el.innerHTML = `
+            <div class="text-xs text-neutral-400 mb-1">${esc(r.user || 'Utilisateur')}</div>
+            <div class="flex items-center justify-between mb-1">
+              <div class="font-semibold">${esc(r.title)}</div>
+              <div class="text-sm opacity-70">${r.rating ? '⭐ ' + esc(r.rating) + '/10' : ''}</div>
+            </div>
+            <div class="text-sm mb-2">${esc(r.body)}</div>
+            <div class="text-xs flex items-center gap-3">
+              <button class="helpful px-2 py-1 border border-white/10 rounded" data-id="${esc(r.id)}">Utile (${esc(r.helpfulCount)})</button>
+              <button class="report px-2 py-1 border border-white/10 rounded" data-id="${esc(r.id)}">Signaler</button>
+            </div>
+          `;
+          list.appendChild(el);
+        });
+        loaded += items.length;
+        maybeHideMore(items.length);
+      }
+
+      setMoreEnabled(true);
+    } catch (e) {
+      console.error(e);
+      setMoreEnabled(true);
+    } finally {
+      showSpinner(false);
+      loading = false;
+    }
+  }
+
+  async function postJSON(url, payload){
+    const headers = { 'Content-Type': 'application/json' };
+    if (payload && payload._token) headers['X-CSRF-TOKEN'] = payload._token;
+
+    const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload || {}) });
+    if (res.redirected && /login/i.test(res.url)) {
+      throw { type: 'auth', message: 'not_authenticated' };
+    }
+    const text = await res.text();
+    let data = null;
+    try { data = JSON.parse(text); } catch(e) {}
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) throw { type:'auth', message:'not_authenticated' };
+      throw { type:'http', status: res.status, body: text, json:data };
+    }
+    return data || { ok: true };
+  }
+
+  root.querySelectorAll('a[data-sort]').forEach(a => {
+    a.addEventListener('click', (e)=>{
+      e.preventDefault();
+      sort = a.dataset.sort;
+      page = 1;
+      root.querySelectorAll('a[data-sort]').forEach(x=>x.classList.remove('bg-white/10'));
+      a.classList.add('bg-white/10');
+      fetchPage(true);
+    });
+  });
+
+  more.addEventListener('click', (e)=>{
+    e.preventDefault();
+    if(loading) return;
+    if (typeof total === 'number' && loaded >= total) { more.classList.add('hidden'); return; }
+    page++;
+    fetchPage(false);
+  });
+
+  const loginUrl = '{{ path('app_login') }}';
+  const listEl = list;
+  listEl.addEventListener('click', async (e)=>{
+    const t = e.target.closest('button');
+    if(!t) return;
+
+    if(t.classList.contains('helpful')){
+      const id = t.dataset.id;
+      const token = '{{ csrf_token('review_helpful') }}';
+      try {
+        const json = await postJSON(`/api/reviews/${id}/helpful`, { _token: token });
+        if(json && json.ok){
+          t.textContent = `Utile (${json.helpfulCount})`;
+        } else {
+          alert(json?.error || 'Erreur inconnue');
+        }
+      } catch(err) {
+        if (err.type === 'auth') {
+          alert('Connecte-toi pour voter un avis.');
+          window.location.href = loginUrl;
+        } else {
+          console.error(err);
+          alert('Impossible de voter pour le moment.');
+        }
+      }
+    }
+
+    if(t.classList.contains('report')){
+      const id = t.dataset.id;
+      const reason = prompt('Raison du signalement ?');
+      if(!reason) return;
+      const token = '{{ csrf_token('review_report') }}';
+      try {
+        const json = await postJSON(`/api/reviews/${id}/report`, { _token: token, reason });
+        if(json && json.ok){
+          alert('Signalement envoyé. Merci.');
+        } else {
+          alert(json?.error || 'Erreur inconnue');
+        }
+      } catch(err) {
+        if (err.type === 'auth') {
+          alert('Connecte-toi pour signaler.');
+          window.location.href = loginUrl;
+        } else {
+          console.error(err);
+          alert('Impossible d’envoyer le signalement.');
+        }
+      }
+    }
+  });
+
+  document.addEventListener('reviews:updated', ()=>{
+    page = 1;
+    fetchPage(true);
+  });
+
+  fetchPage(true);
+})();
+</script>
+

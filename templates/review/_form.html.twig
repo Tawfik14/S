@@ -1,0 +1,48 @@
+<form id="review-form" class="space-y-3" data-endpoint="{{ path('app_reviews_upsert') }}">
+  <input type="hidden" name="_token" value="{{ csrf_token('review') }}">
+  <input type="hidden" name="mediaType" value="{{ mediaType }}">
+  <input type="hidden" name="tmdbId" value="{{ tmdbId }}">
+
+  <div>
+    <label class="block text-sm mb-1">Titre</label>
+    <input name="title" required maxlength="140" class="w-full border rounded p-2 bg-neutral-900 ring-1 ring-white/10" placeholder="Un avis concis" />
+  </div>
+
+  <div>
+    <label class="block text-sm mb-1">Votre avis</label>
+    <textarea name="body" required rows="4" class="w-full border rounded p-2 bg-neutral-900 ring-1 ring-white/10" placeholder="Ce que vous avez aimé / pas aimé…"></textarea>
+  </div>
+
+  <div>
+    <label class="block text-sm mb-1">Note (optionnel)</label>
+    <input type="number" name="rating" min="1" max="10" class="border rounded p-2 w-24 bg-neutral-900 ring-1 ring-white/10" />
+  </div>
+
+  <button class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded">Publier</button>
+</form>
+
+<script>
+  (function(){
+    const form = document.getElementById('review-form');
+    if(!form) return;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const endpoint = form.dataset.endpoint;
+      const fd = new FormData(form);
+      const payload = Object.fromEntries(fd.entries());
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if(json.ok){
+        form.reset();
+        document.dispatchEvent(new CustomEvent('reviews:updated'));
+      } else {
+        alert(json.error || 'Erreur');
+      }
+    });
+  })();
+</script>
+
